@@ -41,7 +41,7 @@ I'm [Nickname]. [Short bio].
   /** GitHub 用户名（用于留言、后台、页脚链接） */
   github: '[GitHub用户名]',
   /** 站点正式网址：部署后改成你的 Netlify 地址，结尾不要斜杠 */
-  url: 'https://example.netlify.app',
+  url: 'https://bzm-photo.netlify.app',
 
   social: [
     { label: 'GitHub', href: 'https://github.com/[GitHub用户名]' },
