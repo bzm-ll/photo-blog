@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import EssayCard from '../components/EssayCard.astro';
+import { getEssays } from '../lib/content';
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const essays = await getEssays();
+const path = lang === 'zh' ? '/essays/' : '/en/essays/';
+---
+
+<BaseLayout lang={lang} title={t(lang, 'essays.title')} description={t(lang, 'essays.intro')} path={path}>
+  <div class="container-page pt-12 md:pt-16">
+    <div class="border-b border-line pb-8">
+      <p class="eyebrow">Journal — {essays.length} entries</p>
+      <h1 class="mt-3 font-serif text-h1">{t(lang, 'essays.title')}</h1>
+      <p class="measure mt-4 text-mute">{t(lang, 'essays.intro')}</p>
+    </div>
+  </div>
+
+  <section class="container-page py-10 md:py-14">
+    {essays.length === 0 ? (
+      <p class="py-16 text-center text-mute">{t(lang, 'essays.empty')}</p>
+    ) : (
+      <div class="mx-auto max-w-4xl">
+        {essays.map((essay) => (
+          <EssayCard essay={essay} lang={lang} />
+        ))}
+      </div>
+    )}
+  </section>
+</BaseLayout>

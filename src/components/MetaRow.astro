@@ -1,0 +1,31 @@
+---
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  location?: string;
+  shotAt?: string;
+  camera?: string;
+  lens?: string;
+  published?: string;
+}
+const { lang, location, shotAt, camera, lens, published } = Astro.props;
+const rows = [
+  { label: t(lang, 'post.published'), value: published },
+  { label: t(lang, 'post.shotAt'), value: shotAt },
+  { label: t(lang, 'post.location'), value: location },
+  { label: t(lang, 'post.camera'), value: camera },
+  { label: t(lang, 'post.lens'), value: lens },
+].filter((r) => r.value);
+---
+
+{rows.length > 0 && (
+  <dl class="grid grid-cols-2 gap-y-4 border-y border-line py-5 sm:grid-cols-4">
+    {rows.map((row) => (
+      <div>
+        <dt class="font-mono text-[10px] uppercase tracking-[0.14em] text-mute-2">{row.label}</dt>
+        <dd class="mt-1 text-sm text-ink">{row.value}</dd>
+      </div>
+    ))}
+  </dl>
+)}

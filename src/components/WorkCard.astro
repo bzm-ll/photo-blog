@@ -1,0 +1,46 @@
+---
+import { Image } from 'astro:assets';
+import type { Work } from '../lib/content';
+import { formatDate, href, pick, type Lang } from '../lib/i18n';
+
+interface Props {
+  work: Work;
+  lang: Lang;
+  /** 首屏大图用 eager，其余懒加载 */
+  priority?: boolean;
+  ratio?: string;
+  sizes?: string;
+}
+const { work, lang, priority = false, ratio = 'aspect-[3/2]', sizes = '(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw' } = Astro.props;
+const title = pick(lang, work.data.title_zh, work.data.title_en);
+const subtitle = lang === 'zh' ? work.data.title_en : work.data.title_zh;
+const alt = pick(lang, work.data.cover_alt_zh, work.data.cover_alt_en) || title;
+const url = href(lang, `/works/${work.id}/`);
+---
+
+<article class="group">
+  <a href={url} class="block">
+    <div class={`img-zoom overflow-hidden bg-paper-2 ${ratio}`}>
+      <Image
+        src={work.data.cover}
+        alt={alt}
+        widths={[480, 800, 1200, 1600]}
+        sizes={sizes}
+        format="webp"
+        quality={82}
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
+        class="h-full w-full object-cover"
+      />
+    </div>
+    <div class="mt-4 flex items-baseline justify-between gap-4">
+      <h3 class="font-serif text-h3 leading-snug">
+        <span class="link-underline">{title}</span>
+      </h3>
+      <time class="shrink-0 font-mono text-[10px] uppercase tracking-[0.12em] text-mute-2" datetime={new Date(work.data.date).toISOString()}>
+        {formatDate(lang, work.data.date)}
+      </time>
+    </div>
+    {subtitle && <p class="mt-1 text-xs uppercase tracking-[0.14em] text-mute-2">{subtitle}</p>}
+  </a>
+</article>

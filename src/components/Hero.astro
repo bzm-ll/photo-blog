@@ -1,0 +1,45 @@
+---
+import { Image } from 'astro:assets';
+import type { Work } from '../lib/content';
+import { formatDate, href, pick, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  work: Work;
+  lang: Lang;
+}
+const { work, lang } = Astro.props;
+const title = pick(lang, work.data.title_zh, work.data.title_en);
+const subtitle = lang === 'zh' ? work.data.title_en : work.data.title_zh;
+const alt = pick(lang, work.data.cover_alt_zh, work.data.cover_alt_en) || title;
+const location = pick(lang, work.data.location_zh, work.data.location_en);
+---
+
+<section class="relative -mt-px h-[72svh] min-h-[480px] w-full overflow-hidden bg-paper-3 md:h-[78svh]">
+  <Image
+    src={work.data.cover}
+    alt={alt}
+    widths={[640, 960, 1400, 1920]}
+    sizes="100vw"
+    format="webp"
+    quality={80}
+    loading="eager"
+    fetchpriority="high"
+    class="absolute inset-0 h-full w-full object-cover"
+  />
+  <div class="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-black/5"></div>
+
+  <div class="container-page relative flex h-full flex-col justify-end pb-12 md:pb-16">
+    <p class="mb-4 font-mono text-[10px] uppercase tracking-[0.22em] text-white/80">
+      {t(lang, 'home.hero')} — {formatDate(lang, work.data.date)}
+    </p>
+    <h1 class="max-w-4xl font-serif text-display text-white">
+      <a href={href(lang, `/works/${work.id}/`)} class="link-underline">{title}</a>
+    </h1>
+    {(subtitle || location) && (
+      <p class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/85">
+        {subtitle && <span class="uppercase tracking-[0.16em]">{subtitle}</span>}
+        {location && <span>{location}</span>}
+      </p>
+    )}
+  </div>
+</section>

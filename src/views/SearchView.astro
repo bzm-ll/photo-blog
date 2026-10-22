@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const path = lang === 'zh' ? '/search/' : '/en/search/';
+---
+
+<BaseLayout lang={lang} title={t(lang, 'search.title')} description={t(lang, 'search.hint')} path={path}>
+  <div class="container-page pt-12 md:pt-16">
+    <div class="border-b border-line pb-8">
+      <p class="eyebrow">Search</p>
+      <h1 class="mt-3 font-serif text-h1">{t(lang, 'search.title')}</h1>
+    </div>
+  </div>
+
+  <div class="container-page py-10 md:py-14">
+    <div class="mx-auto max-w-3xl">
+      <label for="search-input" class="sr-only">{t(lang, 'search.placeholder')}</label>
+      <input
+        id="search-input"
+        type="search"
+        autocomplete="off"
+        placeholder={t(lang, 'search.placeholder')}
+        class="w-full border-0 border-b border-ink bg-transparent px-0 py-4 font-serif text-h2 outline-none placeholder:text-mute-2 focus:ring-0"
+      />
+      <p class="mt-4 text-xs text-mute-2">{t(lang, 'search.hint')}</p>
+      <p id="search-status" class="mt-6 font-mono text-[11px] uppercase tracking-[0.14em] text-mute-2" aria-live="polite"></p>
+      <div id="search-results" class="mt-4"></div>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const locale = document.documentElement.lang.startsWith('zh') ? 'zh' : 'en';
+  const input = document.getElementById('search-input') as HTMLInputElement | null;
+  const status = document.getElementById('search-status');
+  const results = document.getElementById('search-results');
+  const dict = {
+    zh: { loading: '正在搜索…', none: '没有找到相关内容。', count: '条结果' },
+    en: { loading: 'Searching…', none: 'No results found.', count: 'results' },
+  }[locale === 'en' ? 'en' : 'zh'];
+
+  type Pagefind = {
+    options: (o: Record<string, unknown>) => Promise<void>;
+    search: (q: string, o?: Record<string, unknown>) => Promise<{ results: { data: () => Promise<SearchData> }[] }>;
+  };
+  type SearchData = { url: string; excerpt: string; meta?: { title?: string } };
+
+  let engine: Pagefind | null = null;
+  let loading = false;
+
+  async function getEngine(): Promise<Pagefind | null> {
+    if (engine) return engine;
+    if (loading) return null;
+    loading = true;
+    try {
+      const mod = (await import(/* @vite-ignore */ '/pagefind/pagefind.js')) as unknown as Pagefind;
+      await mod.options({ excerptLength: 26 });
+      engine = mod;
+      return engine;
+    } catch {
+      return null;
+    } finally {
+      loading = false;
+    }
+  }
+
+  function escapeHtml(value: string) {
+    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  async function run(query: string) {
+    if (!input || !results || !status) return;
+    const q = query.trim();
+    results.innerHTML = '';
+    if (!q) {
+      status.textContent = '';
+      return;
+    }
+    status.textContent = dict.loading;
+    const pf = await getEngine();
+    if (!pf) {
+      status.textContent = '搜索索引尚未生成（本地开发模式下正常，部署后可用）。';
+      return;
+    }
+    const search = await pf.search(q, { filters: { locale } });
+    const top = await Promise.all(search.results.slice(0, 12).map((r) => r.data()));
+    status.textContent = `${top.length} ${dict.count}`;
+    if (top.length === 0) {
+      results.innerHTML = `<p class="py-8 text-mute">${dict.none}</p>`;
+      return;
+    }
+    results.innerHTML = top
+      .map((item) => {
+        const title = escapeHtml(item.meta?.title ?? item.url);
+        return `<article class="border-b border-line py-6">
+          <a href="${item.url}" class="group block">
+            <h2 class="font-serif text-xl group-hover:underline">${title}</h2>
+            <p class="mt-2 text-sm leading-relaxed text-mute">${item.excerpt}</p>
+            <p class="mt-2 font-mono text-[10px] uppercase tracking-[0.12em] text-mute-2">${item.url}</p>
+          </a>
+        </article>`;
+      })
+      .join('');
+  }
+
+  let timer: number | undefined;
+  input?.addEventListener('input', (event) => {
+    const value = (event.target as HTMLInputElement).value;
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => run(value), 220);
+  });
+
+  const initial = new URLSearchParams(window.location.search).get('q');
+  if (initial && input) {
+    input.value = initial;
+    run(initial);
+  }
+  input?.focus();
+</script>

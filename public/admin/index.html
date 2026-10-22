@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>内容管理</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <style>
+      html, body { margin: 0; height: 100%; background: #fafaf8; }
+      #boot {
+        display: flex; height: 100%; align-items: center; justify-content: center;
+        font-family: -apple-system, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+        color: #6e6e68; font-size: 13px; letter-spacing: 0.1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="boot">正在加载后台…</div>
+
+    <!-- 1) Netlify Identity 登录组件（没有启用 Identity 时会静默失败，不影响页面打开） -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
+    <!-- 2) Decap CMS 本体（版本锁定，避免以后大版本更新把后台搞坏） -->
+    <script src="https://unpkg.com/decap-cms@^3.17.1/dist/decap-cms.js"></script>
+
+    <script>
+      // Decap 加载完成后移除占位文字
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          var boot = document.getElementById('boot');
+          if (boot && boot.children.length === 0) boot.remove();
+        }, 1200);
+      });
+    </script>
+  </body>
+</html>

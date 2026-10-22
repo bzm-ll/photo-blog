@@ -1,0 +1,13 @@
+---
+import SeriesDetailView from '../../../views/SeriesDetailView.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const items = await getCollection('series', ({ data }) => data.draft !== true);
+  return items.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+---
+
+<SeriesDetailView entry={entry} lang="en" />

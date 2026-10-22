@@ -1,0 +1,27 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Comments from '../components/Comments.astro';
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const path = lang === 'zh' ? '/guestbook/' : '/en/guestbook/';
+---
+
+<BaseLayout lang={lang} title={t(lang, 'guestbook.title')} description={t(lang, 'guestbook.intro')} path={path}>
+  <div class="container-page pt-12 md:pt-16">
+    <div class="mx-auto max-w-3xl border-b border-line pb-8">
+      <p class="eyebrow">Guestbook</p>
+      <h1 class="mt-3 font-serif text-h1">{t(lang, 'guestbook.title')}</h1>
+      <p class="mt-4 text-mute">{t(lang, 'guestbook.intro')}</p>
+    </div>
+  </div>
+
+  <div class="container-page">
+    <div class="mx-auto max-w-3xl">
+      <Comments lang={lang} />
+    </div>
+  </div>
+</BaseLayout>

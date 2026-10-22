@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/config';
+import { pick, t, type Lang } from '../lib/i18n';
+import { md } from '../lib/markdown';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const body = md(pick(lang, site.about.zh, site.about.en));
+const path = lang === 'zh' ? '/about/' : '/en/about/';
+---
+
+<BaseLayout lang={lang} title={t(lang, 'about.title')} description={pick(lang, site.bio.zh, site.bio.en)} path={path}>
+  <div class="container-page pt-12 md:pt-16">
+    <div class="grid gap-10 md:grid-cols-12">
+      <div class="md:col-span-4">
+        <p class="eyebrow">{t(lang, 'about.title')}</p>
+        <h1 class="mt-4 font-serif text-h1">{site.author[lang]}</h1>
+        <p class="mt-4 font-mono text-[11px] uppercase tracking-[0.14em] text-mute-2">{site.name[lang]}</p>
+
+        <div class="mt-10 border-t border-line pt-6">
+          <p class="eyebrow mb-4">{t(lang, 'about.contact')}</p>
+          <ul class="space-y-2 text-sm">
+            <li><a href={`mailto:${site.email}`} class="link-underline">{site.email}</a></li>
+            {site.social.filter((item) => !item.href.startsWith('mailto')).map((item) => (
+              <li>
+                <a href={item.href} target="_blank" rel="noopener" class="link-underline text-mute hover:text-ink">{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="md:col-span-8">
+        <div class="prose measure" set:html={body} />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

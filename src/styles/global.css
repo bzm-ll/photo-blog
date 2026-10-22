@@ -1,0 +1,299 @@
+@import "tailwindcss";
+
+/* 用 class 控制暗色（可手动切换），默认跟随系统由脚本处理 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* ---- 颜色：黑白 + 高级灰 ---- */
+  --color-paper: #fafaf8;
+  --color-paper-2: #f2f1ec;
+  --color-paper-3: #e9e7e0;
+  --color-ink: #0a0a0a;
+  --color-ink-2: #1c1c1a;
+  --color-mute: #6e6e68;
+  --color-mute-2: #9c9c94;
+  --color-line: #e3e1da;
+  --color-line-2: #cfcdc5;
+  --color-accent: #8b7f6b;
+
+  /* ---- 字体 ---- */
+  --font-serif: "Songti SC", "Noto Serif CJK SC", "Source Han Serif SC",
+    "Noto Serif SC", ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* ---- 字号（流体，随屏幕缩放）---- */
+  --text-display: clamp(2.6rem, 7vw, 5.6rem);
+  --text-display--line-height: 0.96;
+  --text-display--letter-spacing: -0.03em;
+  --text-hero: clamp(1.9rem, 4.4vw, 3.2rem);
+  --text-hero--line-height: 1.08;
+  --text-hero--letter-spacing: -0.02em;
+  --text-h1: clamp(1.75rem, 3.2vw, 2.5rem);
+  --text-h1--line-height: 1.16;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: clamp(1.3rem, 2.1vw, 1.75rem);
+  --text-h2--line-height: 1.28;
+  --text-h3: clamp(1.05rem, 1.5vw, 1.25rem);
+  --text-h3--line-height: 1.4;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.8;
+  --text-meta: 0.75rem;
+  --text-meta--line-height: 1.4;
+  --text-meta--letter-spacing: 0.14em;
+}
+
+/* 暗色主题覆盖 */
+.dark {
+  --color-paper: #0d0d0c;
+  --color-paper-2: #151513;
+  --color-paper-3: #1d1d1a;
+  --color-ink: #f6f5f1;
+  --color-ink-2: #e4e2dc;
+  --color-mute: #a3a29b;
+  --color-mute-2: #7c7b74;
+  --color-line: #2a2a27;
+  --color-line-2: #3b3b35;
+  --color-accent: #b6ab97;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  img,
+  video {
+    max-width: 100%;
+    height: auto;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* 版心：最大 1440px，手机 20px 边距，桌面 48px */
+  .container-page {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .container-page {
+      padding-inline: 2.5rem;
+    }
+  }
+  @media (min-width: 1280px) {
+    .container-page {
+      padding-inline: 3.5rem;
+    }
+  }
+
+  /* 正文阅读宽度 68 字符 */
+  .measure {
+    max-width: 68ch;
+  }
+
+  /* 小型全大写标签 */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+
+  .hairline {
+    border-top: 1px solid var(--color-line);
+  }
+
+  /* 按钮 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--color-ink);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: 0.8125rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .btn:hover {
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--color-ink);
+  }
+  .btn-ghost:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* 下划线链接 */
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.25s ease;
+  }
+  .link-underline:hover,
+  .link-underline:focus-visible {
+    background-size: 100% 1px;
+  }
+
+  /* 图片悬停：轻微放大，克制 */
+  .img-zoom img {
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .img-zoom:hover img {
+    transform: scale(1.02);
+  }
+
+  /* 正文排版（Markdown 渲染结果） */
+  .prose {
+    font-size: 1.0625rem;
+    line-height: 1.85;
+    color: var(--color-ink-2);
+  }
+  .prose > * + * {
+    margin-top: 1.15em;
+  }
+  .prose h2 {
+    font-size: var(--text-h2);
+    color: var(--color-ink);
+    margin-top: 2.2em;
+    margin-bottom: 0.6em;
+  }
+  .prose h3 {
+    font-size: var(--text-h3);
+    color: var(--color-ink);
+    margin-top: 1.8em;
+    margin-bottom: 0.5em;
+  }
+  .prose p {
+    text-wrap: pretty;
+  }
+  .prose strong {
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .prose a {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--color-line-2);
+    transition: text-decoration-color 0.2s ease;
+  }
+  .prose a:hover {
+    text-decoration-color: currentColor;
+  }
+  .prose blockquote {
+    border-left: 2px solid var(--color-ink);
+    padding-left: 1.25rem;
+    font-family: var(--font-serif);
+    font-size: 1.15em;
+    color: var(--color-ink);
+    font-style: italic;
+  }
+  .prose ul,
+  .prose ol {
+    padding-left: 1.25rem;
+  }
+  .prose ul {
+    list-style: disc;
+  }
+  .prose ol {
+    list-style: decimal;
+  }
+  .prose li + li {
+    margin-top: 0.35em;
+  }
+  .prose li::marker {
+    color: var(--color-mute-2);
+  }
+  .prose img {
+    width: 100%;
+    margin-block: 2rem;
+  }
+  .prose figcaption,
+  .prose em {
+    color: var(--color-mute);
+  }
+  .prose code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-paper-2);
+    padding: 0.15em 0.35em;
+  }
+  .prose pre {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+  }
+  .prose pre code {
+    background: transparent;
+    padding: 0;
+  }
+  .prose hr {
+    margin-block: 2.5rem;
+  }
+}
+
+/* 打印时去掉多余元素 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

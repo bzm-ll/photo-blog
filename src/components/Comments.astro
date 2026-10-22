@@ -1,0 +1,46 @@
+---
+import { site } from '../lib/config';
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const { repo, repoId, category, categoryId, mapping, theme } = site.giscus;
+const configured = Boolean(repoId && categoryId);
+---
+
+<section class="mt-24 border-t border-line pt-12 no-print" aria-labelledby="comments-title">
+  <div class="mb-8 flex items-end justify-between border-b border-line pb-3">
+    <h2 id="comments-title" class="font-serif text-h2">{t(lang, 'comments.title')}</h2>
+    <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-mute-2">Giscus</span>
+  </div>
+
+  {configured ? (
+    <div>
+      <p class="mb-6 text-xs text-mute-2">{t(lang, 'comments.hint')}</p>
+      <div class="giscus" data-lang={lang}></div>
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={repo}
+        data-repo-id={repoId}
+        data-category={category}
+        data-category-id={categoryId}
+        data-mapping={mapping}
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme={theme}
+        data-lang={lang === 'zh' ? 'zh-CN' : 'en'}
+        crossorigin="anonymous"
+        async
+      ></script>
+    </div>
+  ) : (
+    <p class="border border-dashed border-line-2 p-6 text-sm text-mute">
+      {t(lang, 'comments.setup')}
+    </p>
+  )}
+</section>

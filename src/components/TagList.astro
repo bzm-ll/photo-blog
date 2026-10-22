@@ -1,0 +1,27 @@
+---
+import { href, type Lang } from '../lib/i18n';
+
+interface Props {
+  tags: { name: string; slug: string; count?: number }[];
+  lang: Lang;
+  size?: 'sm' | 'md';
+}
+const { tags, lang, size = 'sm' } = Astro.props;
+---
+
+<ul class="flex flex-wrap gap-2">
+  {tags.map((tag) => (
+    <li>
+      <a
+        href={href(lang, `/tags/${encodeURIComponent(tag.slug)}/`)}
+        class:list={[
+          'inline-flex min-h-9 items-center gap-2 border border-line px-3 transition-colors hover:border-ink hover:text-ink',
+          size === 'sm' ? 'font-mono text-[10px] uppercase tracking-[0.12em] text-mute' : 'text-sm text-mute',
+        ]}
+      >
+        <span>{tag.name}</span>
+        {tag.count ? <span class="text-mute-2">{tag.count}</span> : null}
+      </a>
+    </li>
+  ))}
+</ul>

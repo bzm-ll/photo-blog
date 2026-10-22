@@ -1,0 +1,13 @@
+---
+import WorkDetailView from '../../views/WorkDetailView.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const items = await getCollection('works', ({ data }) => data.draft !== true);
+  return items.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+---
+
+<WorkDetailView entry={entry} lang="zh" />

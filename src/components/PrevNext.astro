@@ -1,0 +1,39 @@
+---
+import { href, t, type Lang } from '../lib/i18n';
+
+interface Item {
+  id: string;
+  title: string;
+}
+
+interface Props {
+  lang: Lang;
+  base: '/works' | '/essays';
+  newer: Item | null;
+  older: Item | null;
+}
+const { lang, base, newer, older } = Astro.props;
+---
+
+<nav class="mt-20 grid gap-px border-t border-line sm:grid-cols-2" aria-label="Post navigation">
+  <div class="border-b border-line py-8 sm:border-b-0 sm:border-r sm:pr-8">
+    {newer ? (
+      <a href={href(lang, `${base}/${newer.id}/`)} class="group block">
+        <span class="eyebrow">← {t(lang, 'post.next')}</span>
+        <span class="mt-2 block font-serif text-h3 link-underline">{newer.title}</span>
+      </a>
+    ) : (
+      <span class="eyebrow text-mute-2">—</span>
+    )}
+  </div>
+  <div class="py-8 sm:pl-8 sm:text-right">
+    {older ? (
+      <a href={href(lang, `${base}/${older.id}/`)} class="group block">
+        <span class="eyebrow">{t(lang, 'post.prev')} →</span>
+        <span class="mt-2 block font-serif text-h3 link-underline">{older.title}</span>
+      </a>
+    ) : (
+      <span class="eyebrow text-mute-2">—</span>
+    )}
+  </div>
+</nav>

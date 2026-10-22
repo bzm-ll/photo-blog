@@ -1,0 +1,140 @@
+# ============================================================
+#  Decap CMS 配置（在线后台）
+#  改了这里的字段，务必同步改 src/content.config.ts，两边要一致。
+#  ⚠️ 缩进必须用空格（2 个），不能用 Tab。
+# ============================================================
+
+backend:
+  name: git-gateway        # 走 Netlify Identity 授权，不用给用户配 GitHub 权限
+  branch: main             # 你的默认分支名，通常是 main
+
+# 后台界面语言
+locale: zh_Hans
+
+# 图片上传位置：存进仓库（免费、可版本管理）
+media_folder: "src/assets/uploads"
+# 写进文章的路径（相对于 md 文件所在目录，所以是 ../..）
+public_folder: "../../assets/uploads"
+
+# 部署后改成你自己的网址
+site_url: https://example.netlify.app
+display_url: https://example.netlify.app
+logo_url: https://example.netlify.app/favicon.svg
+
+# 本地调试（可选）：npm i -g decap-server，然后 npm run dev 时另开一个终端跑 decap-server
+# local_backend: true
+
+collections:
+  # ---------------------------------------------------------- 摄影作品
+  - name: works
+    label: 摄影作品
+    label_singular: 作品
+    folder: src/content/works
+    create: true
+    delete: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    identifier_field: title_zh
+    summary: "{{title_zh}} · {{date | date('YYYY-MM-DD')}}"
+    sortable_fields: [date, title_zh]
+    view_filters:
+      - label: 只看精选
+        field: featured
+        pattern: true
+      - label: 只看草稿
+        field: draft
+        pattern: true
+    fields:
+      - { name: title_zh, label: 标题（中文）, widget: string, hint: 必填。新建时右上角的 Slug 会自动生成，建议手动改成英文短名，例如 fog-harbour }
+      - { name: title_en, label: 标题（英文）, widget: string, required: false }
+      - { name: date, label: 发布日期, widget: datetime, date_format: YYYY-MM-DD, time_format: false, format: YYYY-MM-DD }
+      - { name: featured, label: 首页精选, widget: boolean, default: false }
+      - { name: draft, label: 存为草稿（不发布）, widget: boolean, default: false }
+      - { name: summary_zh, label: 摘要（中文）, widget: text, required: false, hint: 列表页与搜索结果显示的一两句话 }
+      - { name: summary_en, label: 摘要（英文）, widget: text, required: false }
+      - { name: cover, label: 封面图, widget: image, hint: 建议 3:2 横图，长边 2000px 以内 }
+      - { name: cover_alt_zh, label: 封面替代文字（中文）, widget: string, required: false, hint: 读屏软件与搜索引擎会读这句，写清"拍的是什么" }
+      - { name: cover_alt_en, label: 封面替代文字（英文）, widget: string, required: false }
+      - name: gallery
+        label: 作品图集
+        widget: list
+        required: false
+        summary: "{{fields.alt_zh}}"
+        fields:
+          - { name: image, label: 图片, widget: image }
+          - { name: alt_zh, label: 替代文字（中文）, widget: string, required: false }
+          - { name: alt_en, label: 替代文字（英文）, widget: string, required: false }
+      - { name: location_zh, label: 拍摄地点（中文）, widget: string, required: false }
+      - { name: location_en, label: 拍摄地点（英文）, widget: string, required: false }
+      - { name: shot_at, label: 拍摄时间, widget: string, required: false, hint: 自由文本，例如 2024-03 或 2024 年 3 月 }
+      - { name: camera, label: 相机, widget: string, required: false, hint: 例如 Leica M6 / Sony A7C }
+      - { name: lens, label: 镜头, widget: string, required: false, hint: 例如 35mm f/2 }
+      - { name: tags_zh, label: 标签（中文）, widget: list, required: false, default: [] }
+      - { name: tags_en, label: 标签（英文）, widget: list, required: false, default: [] }
+      - name: series
+        label: 所属系列
+        widget: select
+        required: false
+        options:
+          - { label: 安静的海岸, value: coast }
+          - { label: 城市边缘, value: cities }
+          - { label: 冬天的塔, value: winter }
+        hint: 新的系列要先在「摄影系列」里建好，然后到 public/admin/config.yml 的 options 里加一行
+      - { name: body_zh, label: 正文（中文）, widget: markdown, required: false }
+      - { name: body_en, label: 正文（英文）, widget: markdown, required: false }
+      - { name: seo_title_zh, label: SEO 标题（中文）, widget: string, required: false, hint: 留空则用标题 }
+      - { name: seo_title_en, label: SEO 标题（英文）, widget: string, required: false }
+      - { name: seo_description_zh, label: SEO 描述（中文）, widget: text, required: false, hint: 建议 70–120 字 }
+      - { name: seo_description_en, label: SEO 描述（英文）, widget: text, required: false }
+
+  # ---------------------------------------------------------- 文章 / 随笔
+  - name: essays
+    label: 文章随笔
+    label_singular: 文章
+    folder: src/content/essays
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    identifier_field: title_zh
+    summary: "{{title_zh}} · {{date | date('YYYY-MM-DD')}}"
+    sortable_fields: [date, title_zh]
+    fields:
+      - { name: title_zh, label: 标题（中文）, widget: string }
+      - { name: title_en, label: 标题（英文）, widget: string, required: false }
+      - { name: date, label: 发布日期, widget: datetime, date_format: YYYY-MM-DD, time_format: false, format: YYYY-MM-DD }
+      - { name: featured, label: 首页推荐, widget: boolean, default: false }
+      - { name: draft, label: 存为草稿（不发布）, widget: boolean, default: false }
+      - { name: summary_zh, label: 摘要（中文）, widget: text, required: false }
+      - { name: summary_en, label: 摘要（英文）, widget: text, required: false }
+      - { name: cover, label: 封面图（可选）, widget: image, required: false }
+      - { name: cover_alt_zh, label: 封面替代文字（中文）, widget: string, required: false }
+      - { name: cover_alt_en, label: 封面替代文字（英文）, widget: string, required: false }
+      - { name: tags_zh, label: 标签（中文）, widget: list, required: false, default: [] }
+      - { name: tags_en, label: 标签（英文）, widget: list, required: false, default: [] }
+      - { name: body_zh, label: 正文（中文）, widget: markdown, required: false }
+      - { name: body_en, label: 正文（英文）, widget: markdown, required: false }
+      - { name: seo_title_zh, label: SEO 标题（中文）, widget: string, required: false }
+      - { name: seo_description_zh, label: SEO 描述（中文）, widget: text, required: false }
+
+  # ---------------------------------------------------------- 摄影系列
+  - name: series
+    label: 摄影系列
+    label_singular: 系列
+    folder: src/content/series
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    identifier_field: title_zh
+    summary: "{{title_zh}}"
+    sortable_fields: [order, title_zh]
+    fields:
+      - { name: title_zh, label: 系列名（中文）, widget: string }
+      - { name: title_en, label: 系列名（英文）, widget: string, required: false }
+      - { name: order, label: 排序（小的在前）, widget: number, default: 99, value_type: int }
+      - { name: description_zh, label: 说明（中文）, widget: text, required: false }
+      - { name: description_en, label: 说明（英文）, widget: text, required: false }
+      - { name: cover, label: 封面图（可选）, widget: image, required: false }
+      - { name: draft, label: 存为草稿, widget: boolean, default: false }

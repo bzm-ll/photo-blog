@@ -1,0 +1,44 @@
+---
+import { Image } from 'astro:assets';
+import type { Essay } from '../lib/content';
+import { formatDate, href, pick, type Lang } from '../lib/i18n';
+
+interface Props {
+  essay: Essay;
+  lang: Lang;
+  compact?: boolean;
+}
+const { essay, lang, compact = false } = Astro.props;
+const title = pick(lang, essay.data.title_zh, essay.data.title_en);
+const summary = pick(lang, essay.data.summary_zh, essay.data.summary_en);
+const url = href(lang, `/essays/${essay.id}/`);
+---
+
+<article class="group border-t border-line py-6 first:border-t-0">
+  <a href={url} class="grid gap-5 sm:grid-cols-12 sm:gap-8">
+    <div class="sm:col-span-8">
+      <div class="mb-2 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.14em] text-mute-2">
+        <time datetime={new Date(essay.data.date).toISOString()}>{formatDate(lang, essay.data.date)}</time>
+        {essay.data.tags_zh?.length ? <span>· {essay.data.tags_zh.slice(0, 2).join(' / ')}</span> : null}
+      </div>
+      <h3 class="font-serif text-h3 leading-snug"><span class="link-underline">{title}</span></h3>
+      {!compact && summary && <p class="mt-2 max-w-2xl text-sm leading-relaxed text-mute">{summary}</p>}
+    </div>
+    {essay.data.cover && !compact && (
+      <div class="order-first sm:order-none sm:col-span-4">
+        <div class="aspect-[4/3] overflow-hidden bg-paper-2 img-zoom">
+          <Image
+            src={essay.data.cover}
+            alt={pick(lang, essay.data.cover_alt_zh, essay.data.cover_alt_en) || title}
+            widths={[320, 640]}
+            sizes="(min-width:640px) 30vw, 100vw"
+            format="webp"
+            quality={82}
+            loading="lazy"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </div>
+    )}
+  </a>
+</article>

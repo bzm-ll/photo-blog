@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import WorkCard from '../components/WorkCard.astro';
+import EssayCard from '../components/EssayCard.astro';
+import SeriesCard from '../components/SeriesCard.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { site } from '../lib/config';
+import { getWorks, getEssays, getSeriesList, featuredWorks, worksOfSeries } from '../lib/content';
+import { href, pick, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+const works = await getWorks();
+const hero = featuredWorks(works, 3)[0] ?? works[0] ?? null;
+const picks = works.filter((item) => item.id !== hero?.id).slice(0, 3);
+const recent = works.slice(0, site.homeLimit);
+const seriesList = await getSeriesList();
+const essays = (await getEssays()).slice(0, 3);
+const seriesCounts = seriesList.map((s) => worksOfSeries(works, s.id).length);
+const path = lang === 'zh' ? '/' : '/en/';
+---
+
+<BaseLayout lang={lang} title={site.name[lang]} description={site.tagline[lang]} path={path}>
+  {hero && <Hero work={hero} lang={lang} />}
+
+  <section class="container-page py-16 md:py-24">
+    <div class="grid gap-8 md:grid-cols-12 md:gap-12">
+      <div class="md:col-span-4">
+        <p class="eyebrow">Portfolio</p>
+        <p class="mt-3 text-sm text-mute">2024 — 2025</p>
+      </div>
+      <div class="md:col-span-8">
+        <p class="font-serif text-hero leading-tight">{pick(lang, site.tagline.zh, site.tagline.en)}</p>
+        <p class="measure mt-6 text-mute">{pick(lang, site.bio.zh, site.bio.en)}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={href(lang, '/works/')} class="btn">{t(lang, 'nav.works')}</a>
+          <a href={href(lang, '/about/')} class="btn btn-ghost">{t(lang, 'nav.about')}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {picks.length > 0 && (
+    <section class="container-page pb-20 md:pb-28">
+      <SectionHead
+        title={t(lang, 'home.featured')}
+        eyebrow="Selected"
+        href={href(lang, '/works/')}
+        linkLabel={t(lang, 'home.viewAll')}
+      />
+      <div class="grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+        {picks.map((work, index) => (
+          <WorkCard work={work} lang={lang} priority={index === 0} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="container-page pb-20 md:pb-28">
+    <SectionHead title={t(lang, 'home.latestWorks')} eyebrow="Index" href={href(lang, '/works/')} linkLabel={t(lang, 'home.viewAll')} />
+    <ul class="border-t border-line">
+      {recent.map((work, index) => (
+        <li class="group border-b border-line">
+          <a href={href(lang, `/works/${work.id}/`)} class="grid grid-cols-12 items-baseline gap-4 py-5">
+            <span class="col-span-2 font-mono text-[10px] uppercase tracking-[0.14em] text-mute-2 sm:col-span-1">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <span class="col-span-10 font-serif text-h3 sm:col-span-6">
+              <span class="link-underline">{pick(lang, work.data.title_zh, work.data.title_en)}</span>
+            </span>
+            <span class="col-span-6 col-start-3 text-xs text-mute sm:col-span-3 sm:col-start-auto">
+              {pick(lang, work.data.location_zh, work.data.location_en)}
+            </span>
+            <span class="col-span-4 text-right font-mono text-[10px] uppercase tracking-[0.12em] text-mute-2 sm:col-span-2">
+              {new Date(work.data.date).getUTCFullYear()}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  {seriesList.length > 0 && (
+    <section class="container-page pb-20 md:pb-28">
+      <SectionHead title={t(lang, 'home.series')} eyebrow="Projects" href={href(lang, '/series/')} linkLabel={t(lang, 'home.viewAll')} />
+      <div class="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+        {seriesList.slice(0, 3).map((item, i) => (
+          <SeriesCard series={item} lang={lang} count={seriesCounts[i]} cover={item.data.cover ?? null} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  {essays.length > 0 && (
+    <section class="container-page pb-20 md:pb-28">
+      <SectionHead title={t(lang, 'home.journal')} eyebrow="Journal" href={href(lang, '/essays/')} linkLabel={t(lang, 'home.viewAll')} />
+      <div>
+        {essays.map((essay) => (
+          <EssayCard essay={essay} lang={lang} />
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="border-t border-line">
+    <div class="container-page grid gap-8 py-16 md:grid-cols-12 md:py-24">
+      <div class="md:col-span-3">
+        <p class="eyebrow">{t(lang, 'home.about')}</p>
+      </div>
+      <div class="md:col-span-6">
+        <p class="font-serif text-h2 leading-snug">{site.author[lang]}</p>
+        <p class="measure mt-4 text-mute">{pick(lang, site.bio.zh, site.bio.en)}</p>
+      </div>
+      <div class="md:col-span-3 md:text-right">
+        <a href={href(lang, '/about/')} class="link-underline font-mono text-[11px] uppercase tracking-[0.14em] text-mute hover:text-ink">
+          {t(lang, 'home.viewAll')} →
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

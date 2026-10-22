@@ -1,0 +1,116 @@
+---
+import { Image } from 'astro:assets';
+import { pick, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  items: { image: ImageMetadata; alt_zh: string; alt_en: string }[];
+  lang: Lang;
+  title?: string;
+}
+const { items, lang, title = '' } = Astro.props;
+---
+
+{items.length > 0 && (
+  <section class="mt-20" aria-labelledby="gallery-title">
+    <div class="mb-6 flex items-end justify-between border-b border-line pb-3">
+      <h2 id="gallery-title" class="font-serif text-h2">{title || t(lang, 'post.gallery')}</h2>
+      <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-mute-2">{items.length} images</span>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:grid-cols-3">
+      {items.map((item, index) => {
+        const alt = pick(lang, item.alt_zh, item.alt_en) || `${title || t(lang, 'post.gallery')} ${index + 1}`;
+        return (
+          <figure class:list={['group', index % 5 === 0 ? 'sm:col-span-2 lg:col-span-2' : '']}>
+            <button
+              type="button"
+              class="lightbox-trigger block w-full cursor-zoom-in overflow-hidden bg-paper-2"
+              data-full={item.image.src}
+              data-alt={alt}
+              aria-label={`${alt} · ${lang === 'zh' ? '点击放大' : 'Click to enlarge'}`}
+            >
+              <Image
+                src={item.image}
+                alt={alt}
+                widths={[480, 800, 1400]}
+                sizes="(min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw"
+                format="webp"
+                quality={82}
+                loading="lazy"
+                class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.015]"
+              />
+            </button>
+            <figcaption class="mt-2 flex items-baseline gap-3 font-mono text-[10px] uppercase tracking-[0.12em] text-mute-2">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <span class="truncate">{pick(lang, item.alt_zh, item.alt_en)}</span>
+            </figcaption>
+          </figure>
+        );
+      })}
+    </div>
+  </section>
+)}
+
+<dialog id="lightbox" class="lightbox" aria-label={t(lang, 'post.gallery')}>
+  <button type="button" class="lightbox-close" aria-label={lang === 'zh' ? '关闭' : 'Close'}>×</button>
+  <img id="lightbox-img" alt="" />
+</dialog>
+
+<script is:inline>
+  (function () {
+    var dialog = document.getElementById('lightbox');
+    if (!dialog) return;
+    var img = document.getElementById('lightbox-img');
+    document.querySelectorAll('.lightbox-trigger').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        img.src = btn.getAttribute('data-full') || '';
+        img.alt = btn.getAttribute('data-alt') || '';
+        if (typeof dialog.showModal === 'function') dialog.showModal();
+      });
+    });
+    dialog.addEventListener('click', function (e) {
+      if (e.target === dialog) dialog.close();
+    });
+    var close = dialog.querySelector('.lightbox-close');
+    if (close) close.addEventListener('click', function () { dialog.close(); });
+  })();
+</script>
+
+<style>
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(8, 8, 8, 0.96);
+    display: none;
+  }
+  .lightbox[open] {
+    display: grid;
+    place-items: center;
+  }
+  .lightbox img {
+    max-width: 94vw;
+    max-height: 90vh;
+    object-fit: contain;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
+    font-size: 28px;
+    line-height: 1;
+    color: #fff;
+    background: transparent;
+  }
+  .lightbox::backdrop {
+    background: rgba(0, 0, 0, 0.8);
+  }
+</style>

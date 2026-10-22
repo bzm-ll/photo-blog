@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getWorks, getEssays, groupByYearMonth } from '../lib/content';
+import { formatDate, href, pick, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+
+type Row = {
+  id: string;
+  kind: 'work' | 'essay';
+  title: string;
+  date: Date;
+  location: string;
+};
+
+const works = await getWorks();
+const essays = await getEssays();
+
+const rows: Row[] = [
+  ...works.map((work) => ({
+    id: work.id,
+    kind: 'work' as const,
+    title: pick(lang, work.data.title_zh, work.data.title_en),
+    date: new Date(work.data.date),
+    location: pick(lang, work.data.location_zh, work.data.location_en),
+  })),
+  ...essays.map((essay) => ({
+    id: essay.id,
+    kind: 'essay' as const,
+    title: pick(lang, essay.data.title_zh, essay.data.title_en),
+    date: new Date(essay.data.date),
+    location: '',
+  })),
+].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+const groups = groupByYearMonth(rows);
+
+const path = lang === 'zh' ? '/archive/' : '/en/archive/';
+const monthLabel = (m: number) =>
+  lang === 'zh' ? `${m} 月` : new Intl.DateTimeFormat('en-GB', { month: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(2024, m - 1, 1)));
+---
+
+<BaseLayout lang={lang} title={t(lang, 'archive.title')} description={t(lang, 'archive.intro')} path={path}>
+  <div class="container-page pt-12 md:pt-16">
+    <div class="border-b border-line pb-8">
+      <p class="eyebrow">Archive — {rows.length}</p>
+      <h1 class="mt-3 font-serif text-h1">{t(lang, 'archive.title')}</h1>
+      <p class="measure mt-4 text-mute">{t(lang, 'archive.intro')}</p>
+      <a href={href(lang, '/tags/')} class="mt-6 inline-block font-mono text-[11px] uppercase tracking-[0.14em] text-mute link-underline hover:text-ink">
+        {t(lang, 'tags.title')} →
+      </a>
+    </div>
+  </div>
+
+  <div class="container-page py-12 md:py-16">
+    {groups.map((group) => (
+      <section class="mb-16">
+        <h2 class="sticky top-14 z-10 -mx-5 border-b border-line bg-paper/95 px-5 py-3 font-serif text-h1 tracking-tight backdrop-blur md:top-16 md:-mx-0 md:px-0">
+          {group.year}
+        </h2>
+        {group.months.map((month) => (
+          <div class="mt-8 grid gap-4 md:grid-cols-12">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-mute-2 md:col-span-2">{monthLabel(month.month)}</p>
+            <ul class="md:col-span-10">
+              {month.list.map((row) => (
+                <li class="border-b border-line/70 py-3 first:pt-0">
+                  <a href={href(lang, `/${row.kind === 'work' ? 'works' : 'essays'}/${row.id}/`)} class="group flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+                    <span class="font-serif text-lg link-underline">{row.title}</span>
+                    <span class="flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.12em] text-mute-2">
+                      <span>{row.kind === 'work' ? t(lang, 'nav.works') : t(lang, 'nav.essays')}</span>
+                      <span>{formatDate(lang, row.date)}</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+    ))}
+  </div>
+</BaseLayout>

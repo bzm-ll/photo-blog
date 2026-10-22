@@ -1,0 +1,22 @@
+---
+import TagDetailView from '../../../views/TagDetailView.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const [works, essays] = await Promise.all([
+    getCollection('works', ({ data }) => data.draft !== true),
+    getCollection('essays', ({ data }) => data.draft !== true),
+  ]);
+  const tags = new Set<string>();
+  for (const item of [...works, ...essays]) {
+    for (const tag of item.data.tags_en) {
+      if (tag.trim()) tags.add(tag.trim());
+    }
+  }
+  return [...tags].map((tag) => ({ params: { tag } }));
+}
+
+const { tag } = Astro.props;
+---
+
+<TagDetailView tag={tag} lang="en" />

@@ -1,0 +1,113 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TagList from '../components/TagList.astro';
+import PrevNext from '../components/PrevNext.astro';
+import Comments from '../components/Comments.astro';
+import { site } from '../lib/config';
+import { getEssays, neighbours, type Essay } from '../lib/content';
+import { formatDate, href, pick, t, type Lang } from '../lib/i18n';
+import { md } from '../lib/markdown';
+import { absoluteUrl, imageUrl } from '../lib/seo';
+
+interface Props {
+  entry: Essay;
+  lang: Lang;
+}
+const { entry, lang } = Astro.props;
+const data = entry.data;
+const title = pick(lang, data.title_zh, data.title_en);
+const subtitle = lang === 'zh' ? data.title_en : data.title_zh;
+const summary = pick(lang, data.summary_zh, data.summary_en);
+const body = md(pick(lang, data.body_zh, data.body_en));
+const tags = ((lang === 'en' ? data.tags_en : data.tags_zh) || []).map((name) => ({ name, slug: name }));
+const path = lang === 'zh' ? `/essays/${entry.id}/` : `/en/essays/${entry.id}/`;
+const seoTitle = pick(lang, data.seo_title_zh, data.seo_title_en) || title;
+const seoDesc = pick(lang, data.seo_description_zh, data.seo_description_en) || summary;
+
+const essays = await getEssays();
+const { newer, older } = neighbours(essays, entry.id);
+const cover = data.cover;
+
+const jsonLd = {
+  '@type': 'BlogPosting',
+  headline: title,
+  description: seoDesc,
+  image: cover ? imageUrl(cover) : undefined,
+  datePublished: new Date(data.date).toISOString(),
+  dateModified: new Date(data.date).toISOString(),
+  inLanguage: lang === 'zh' ? 'zh-CN' : 'en',
+  author: { '@type': 'Person', name: site.author[lang] },
+  publisher: { '@type': 'Person', name: site.author[lang] },
+  mainEntityOfPage: absoluteUrl(path),
+  keywords: (lang === 'en' ? data.tags_en : data.tags_zh).join(', '),
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={seoTitle}
+  description={seoDesc}
+  path={path}
+  image={cover}
+  type="article"
+  publishedTime={data.date}
+  jsonLd={jsonLd}
+>
+  <article class="container-page pt-12 md:pt-16">
+    <header class="mx-auto max-w-3xl">
+      <nav class="eyebrow" aria-label="Breadcrumb">
+        <a href={href(lang, '/essays/')} class="hover:text-ink">{t(lang, 'nav.essays')}</a>
+      </nav>
+      <h1 class="mt-5 font-serif text-h1">{title}</h1>
+      {subtitle && <p class="mt-2 font-mono text-[11px] uppercase tracking-[0.16em] text-mute-2">{subtitle}</p>}
+      <div class="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-line pb-6 text-xs text-mute-2">
+        <time datetime={new Date(data.date).toISOString()}>{formatDate(lang, data.date)}</time>
+        <span aria-hidden="true">·</span>
+        <span>{site.author[lang]}</span>
+      </div>
+    </header>
+
+    {cover && (
+      <figure class="mx-auto mt-10 max-w-5xl">
+        <div class="aspect-[3/2] overflow-hidden bg-paper-2">
+          <Image
+            src={cover}
+            alt={pick(lang, data.cover_alt_zh, data.cover_alt_en) || title}
+            widths={[640, 960, 1400]}
+            sizes="(min-width:1024px) 900px, 100vw"
+            format="webp"
+            quality={82}
+            loading="eager"
+            class="h-full w-full object-cover"
+          />
+        </div>
+      </figure>
+    )}
+
+    <div class="mx-auto mt-12 max-w-3xl">
+      {summary && <p class="mb-10 border-l-2 border-ink pl-5 font-serif text-lg leading-relaxed text-ink">{summary}</p>}
+      <div class="prose" set:html={body} />
+
+      {tags.length > 0 && (
+        <div class="mt-14 border-t border-line pt-6">
+          <p class="eyebrow mb-3">{t(lang, 'post.tags')}</p>
+          <TagList tags={tags} lang={lang} />
+        </div>
+      )}
+    </div>
+
+    <div class="mx-auto max-w-3xl">
+      <PrevNext
+        lang={lang}
+        base="/essays"
+        newer={newer ? { id: newer.id, title: pick(lang, newer.data.title_zh, newer.data.title_en) } : null}
+        older={older ? { id: older.id, title: pick(lang, older.data.title_zh, older.data.title_en) } : null}
+      />
+    </div>
+
+    <div class="mx-auto max-w-3xl">
+      <Comments lang={lang} />
+    </div>
+  </article>
+</BaseLayout>

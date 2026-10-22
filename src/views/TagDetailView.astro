@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import WorkCard from '../components/WorkCard.astro';
+import EssayCard from '../components/EssayCard.astro';
+import { getWorks, getEssays } from '../lib/content';
+import { href, pick, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  tag: string;
+  lang: Lang;
+}
+const { tag, lang } = Astro.props;
+const key = (item: { data: { tags_zh?: string[]; tags_en?: string[] } }) =>
+  (lang === 'en' ? item.data.tags_en : item.data.tags_zh) ?? [];
+const works = (await getWorks()).filter((item) => key(item).includes(tag));
+const essays = (await getEssays()).filter((item) => key(item).includes(tag));
+const path = lang === 'zh' ? `/tags/${encodeURIComponent(tag)}/` : `/en/tags/${encodeURIComponent(tag)}/`;
+const total = works.length + essays.length;
+---
+
+<BaseLayout lang={lang} title={`#${tag}`} description={`${t(lang, 'tags.title')} · ${tag}`} path={path}>
+  <div class="container-page pt-12 md:pt-16">
+    <div class="border-b border-line pb-8">
+      <nav class="eyebrow" aria-label="Breadcrumb">
+        <a href={href(lang, '/tags/')} class="hover:text-ink">{t(lang, 'nav.tags')}</a>
+      </nav>
+      <h1 class="mt-4 font-serif text-h1"># {tag}</h1>
+      <p class="mt-3 font-mono text-[11px] uppercase tracking-[0.14em] text-mute-2">{total} {t(lang, 'search.results')}</p>
+    </div>
+  </div>
+
+  <section class="container-page py-12 md:py-16">
+    {works.length > 0 && (
+      <div class="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+        {works.map((work) => (
+          <WorkCard work={work} lang={lang} />
+        ))}
+      </div>
+    )}
+    {essays.length > 0 && (
+      <div class={works.length ? 'mt-16' : ''}>
+        {essays.map((essay) => (
+          <EssayCard essay={essay} lang={lang} />
+        ))}
+      </div>
+    )}
+    {total === 0 && <p class="text-mute">{t(lang, 'search.noResults')}</p>}
+  </section>
+</BaseLayout>

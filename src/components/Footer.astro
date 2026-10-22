@@ -1,0 +1,55 @@
+---
+import { site, nav } from '../lib/config';
+import { href, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-24 border-t border-line no-print">
+  <div class="container-page grid gap-10 py-14 md:grid-cols-12 md:gap-8">
+    <div class="md:col-span-5">
+      <p class="font-serif text-2xl">{site.name[lang]}</p>
+      <p class="mt-3 max-w-xs text-sm leading-relaxed text-mute">{site.tagline[lang]}</p>
+    </div>
+
+    <nav class="md:col-span-3" aria-label="Footer">
+      <p class="eyebrow mb-4">{t(lang, 'nav.home')}</p>
+      <ul class="space-y-2 text-sm">
+        {nav.map((item) => (
+          <li>
+            <a href={href(lang, item.path)} class="text-mute transition-colors hover:text-ink">
+              {t(lang, item.key as never)}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="md:col-span-4">
+      <p class="eyebrow mb-4">Contact</p>
+      <ul class="space-y-2 text-sm">
+        {site.social.map((item) => (
+          <li>
+            <a href={item.href} class="text-mute transition-colors hover:text-ink" rel="me noopener" target="_blank">
+              {item.label}
+            </a>
+          </li>
+        ))}
+        <li>
+          <a href={href(lang, '/privacy/')} class="text-mute transition-colors hover:text-ink">
+            {t(lang, 'footer.privacy')}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container-page flex flex-col gap-3 border-t border-line py-6 text-xs text-mute-2 sm:flex-row sm:items-center sm:justify-between">
+    <p>© {year} {site.author[lang]} · {t(lang, 'footer.rights')}</p>
+    <p>{t(lang, 'footer.built')}</p>
+  </div>
+</footer>
