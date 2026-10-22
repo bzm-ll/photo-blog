@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 // ⚠️ 部署到 Netlify 后，把下面换成你的正式网址（结尾不要加斜杠）
 // 例：'https://your-name.netlify.app'
-export const SITE_URL = 'https://bzm-photo.netlify.app';
+export const SITE_URL = 'https://foggy-harbour.netlify.app';
 
 export default defineConfig({
   site: SITE_URL,

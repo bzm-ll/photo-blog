@@ -17,9 +17,9 @@ media_folder: "src/assets/uploads"
 public_folder: "../../assets/uploads"
 
 # 部署后改成你自己的网址
-site_url: https://bzm-photo.netlify.app
-display_url: https://bzm-photo.netlify.app
-logo_url: https://bzm-photo.netlify.app/favicon.svg
+site_url: https://foggy-harbour.netlify.app
+display_url: https://foggy-harbour.netlify.app
+logo_url: https://foggy-harbour.netlify.app/favicon.svg
 
 # 本地调试（可选）：npm i -g decap-server，然后 npm run dev 时另开一个终端跑 decap-server
 # local_backend: true

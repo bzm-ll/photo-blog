@@ -4,54 +4,51 @@
  */
 export const site = {
   /** 博客名：中文 / 英文 */
-  name: { zh: '[博客名]', en: '[Blog Name]' },
+  name: { zh: 'Misty-reef', en: 'Misty-reef' },
   /** 一句话副标题 */
-  tagline: { zh: '[一句话副标题，例如：关于光、雾与城市的记录]', en: '[One-line tagline]' },
+  tagline: { zh: '为记录世界的美好', en: 'Recording the beauty of the world' },
   /** 作者昵称 */
-  author: { zh: '[昵称]', en: '[Nickname]' },
+  author: { zh: 'Misty-reef', en: 'Misty-reef' },
   /** 个人简介（首页/关于页用） */
   bio: {
-    zh: '[个人简介：2-3 句话介绍你是谁、拍什么、为什么拍。例如：独立摄影师，长期记录东亚城市的边缘地带。作品曾发表于……]',
-    en: '[Short bio: who you are, what you shoot, why.]',
+    zh: '用照片记录世界的美好。日常拍摄风景、城市与光。',
+    en: 'A running record of the beautiful world -- landscape, cities and light.',
   },
   /** 关于页正文（Markdown） */
   about: {
     zh: `## 关于我
 
-这里是 [昵称]，[个人简介]。
-
-我使用 [相机型号] 拍摄，主要关注 [主题]。
+这里是 Misty-reef，用照片记录世界的美好。
 
 ## 联系方式
 
-- 邮箱：[邮箱]
-- Instagram：[@你的账号]
+- 邮箱：1302536587@qq.com
+- GitHub：https://github.com/bzm-ll
 - 约稿 / 合作：欢迎邮件联系`,
     en: `## About
 
-I'm [Nickname]. [Short bio].
+I'm Misty-reef. This is where I keep a record of the beautiful world.
 
 ## Contact
 
-- Email: [email]
-- Instagram: [@handle]`,
+- Email: 1302536587@qq.com
+- GitHub: https://github.com/bzm-ll`,
   },
   /** 联系邮箱 */
-  email: '[邮箱]',
+  email: '1302536587@qq.com',
   /** GitHub 用户名（用于留言、后台、页脚链接） */
-  github: '[GitHub用户名]',
+  github: 'bzm-ll',
   /** 站点正式网址：部署后改成你的 Netlify 地址，结尾不要斜杠 */
-  url: 'https://bzm-photo.netlify.app',
+  url: 'https://foggy-harbour.netlify.app',
 
   social: [
-    { label: 'GitHub', href: 'https://github.com/[GitHub用户名]' },
-    { label: 'Instagram', href: 'https://instagram.com/[@账号]' },
-    { label: 'Email', href: 'mailto:[邮箱]' },
+    { label: 'GitHub', href: 'https://github.com/bzm-ll' },
+    { label: 'Email', href: 'mailto:1302536587@qq.com' },
   ],
 
   /** Giscus 留言（基于 GitHub Discussions，免费） */
   giscus: {
-    repo: '[GitHub用户名]/[仓库名]',
+    repo: 'bzm-ll/photo-blog',
     repoId: '',            // 见 docs/03-后台与部署.md 第 3 步
     category: 'Announcements',
     categoryId: '',
@@ -82,7 +79,6 @@ export const nav = [
 
 /** 友链：直接在这里加行即可 */
 export const friends = [
-  { name: '[友站名 1]', url: 'https://example.com', desc: { zh: '[一句话介绍]', en: '[Short intro]' } },
-  { name: '[友站名 2]', url: 'https://example.com', desc: { zh: '[一句话介绍]', en: '[Short intro]' } },
-  { name: '[友站名 3]', url: 'https://example.com', desc: { zh: '[一句话介绍]', en: '[Short intro]' } },
+  // 复制下面这一行、改掉内容，就是加一个友链：
+  // { name: '友站名', url: 'https://example.com', desc: { zh: '一句话介绍', en: 'Short intro' } },
 ];
